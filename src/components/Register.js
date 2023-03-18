@@ -6,10 +6,14 @@ import React, { useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
+import { Link } from "react-router-dom";
+import {useHistory} from "react-router-dom";
+
 import "./Register.css";
 
 const Register = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const history=useHistory();
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
@@ -37,48 +41,51 @@ const Register = () => {
   const [val, setval] = useState({
     username: "",
     password: "",
-    confirmPassword:""
+    confirmPassword: "",
   });
-  const [isLoading,setLoading]=useState(false);
+  const [isLoading, setLoading] = useState(false);
   const handle = (e) => {
     const login = { ...val };
     login[e.target.id] = e.target.value;
     setval(login);
   };
   const register = async (formData) => {
-
-
-    if(validateInput(val)){
-
-    try {
-      setLoading(true);
-      let response = await axios.post(config.endpoint + `/auth/register`, {
-        username: formData.username,
-        password: formData.password,
-       /* confirmPassword:val.confirmPassword*/
-      });
-      console.log(response.status);
-      if (response.status === 201) {
-        console.log("registered succesfully");
-        enqueueSnackbar("Registered successfully", {
-          variant: "success",
+    
+    if (validateInput(val)) {
+      try {
+        setLoading(true);
+        let response = await axios.post(config.endpoint + `/auth/register`, {
+          username: formData.username,
+          password: formData.password,
+          /* confirmPassword:val.confirmPassword*/
         });
+        console.log(response.status);
+        if (response.status === 201) {
+          console.log("registered succesfully");
+          enqueueSnackbar("Registered successfully", {
+            variant: "success",
+          });
+          history.push('/login')
+          
+        }
+      } catch (err) {
+        console.log(err.response.status);
+        console.log(err.response.data.message);
+        console.log("error", err.message);
+        if (err.response.status === 400) {
+          enqueueSnackbar(err.response.data.message, {
+            variant: "error",
+          });
+        } else {
+          enqueueSnackbar(
+            "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+            { variant: "error" }
+          );
+        }
       }
-    } catch (err) {
-      console.log(err.response.status);
-      console.log(err.response.data.message);
-      console.log("error", err.message);
-      if (err.response.status === 400) {
-        enqueueSnackbar(err.response.data.message, {
-          variant: "error",
-        });
-      } else {
-        enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", { variant: "error" });
-      }
+      setLoading(false);
     }
-    setLoading(false);
-  }
-};
+  };
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
   /**
@@ -99,59 +106,61 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
-    if(data.username.length==0){
-      enqueueSnackbar("Username is a required field",{variant:"warning"});
+    if (data.username.length == 0) {
+      enqueueSnackbar("Username is a required field", { variant: "warning" });
       return false;
-
-    }
-    else if(data.username.length<6){
-      enqueueSnackbar("Username must be at least 6 characters",{variant:"warning"});
+    } else if (data.username.length < 6) {
+      enqueueSnackbar("Username must be at least 6 characters", {
+        variant: "warning",
+      });
       return false;
-    }
-    /*else{
-      setfullfilled((prevState) => ({
-        ...prevState,
-        username: true,
-      }));
-    }*/
-    else if(data.password.length==0){
-      enqueueSnackbar("Password is a required field",{variant:"warning"});
+    } else if (data.password.length == 0) {
+      /*else{
+        setfullfilled((prevState) => ({
+          ...prevState,
+          username: true,
+        }));
+      }*/
+      enqueueSnackbar("Password is a required field", { variant: "warning" });
       return false;
-
-    }
-    else if(data.password.length<6){
-      enqueueSnackbar("Password must be at least 6 characters",{variant:"warning"});
+    } else if (data.password.length < 6) {
+      enqueueSnackbar("Password must be at least 6 characters", {
+        variant: "warning",
+      });
       return false;
-    }
-    /*else{
-      setfullfilled((prevState) => ({
-        ...prevState,
-        password: true,
-      }));
-    }*/
-    else if(data.confirmPassword!==data.password){
-      enqueueSnackbar("Passwords do not match",{variant:"warning"});
+    } else if (data.confirmPassword !== data.password) {
+      /*else{
+        setfullfilled((prevState) => ({
+          ...prevState,
+          password: true,
+        }));
+      }*/
+      enqueueSnackbar("Passwords do not match", { variant: "warning" });
       return false;
-     /* setfullfilled((prevState) => ({
+      /* setfullfilled((prevState) => ({
         ...prevState,
         confirmPassword: true,
       }));*/
-    }
-    else{
+    } else {
       return true;
-      
-      
     }
-    
-
-
   };
-  let button=(isLoading)?<CircularProgress/>:<Button className="button" id="" variant="contained" onClick={()=>{register(val)}}>
-  Register Now
-</Button>
-  
+  let button = isLoading ? (
+    <CircularProgress />
+  ) : (
+    <Button
+      className="button"
+      id=""
+      variant="contained"
+      onClick={() => {
+        register(val);
+      }}
+    >
+      Register Now
+    </Button>
+  );
 
- /*console.log(fullfilled.username);
+  /*console.log(fullfilled.username);
   console.log(fullfilled.password);
   console.log(fullfilled.confirmPassword);*/
   return (
@@ -161,7 +170,7 @@ const Register = () => {
       justifyContent="space-between"
       minHeight="100vh"
     >
-      <Header hasHiddenAuthButtons />
+      <Header hasHiddenAuthButtons={true} />
       <Box className="content">
         <Stack spacing={2} className="form">
           <h2 className="title">Register</h2>
@@ -201,9 +210,10 @@ const Register = () => {
           {button}
           <p className="secondary-action">
             Already have an account?{" "}
-            <a className="link" href="#">
+            <Link className="link" to="/login">
               Login here
-            </a>
+              </Link>
+          
           </p>
         </Stack>
       </Box>
