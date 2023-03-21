@@ -13,7 +13,7 @@ const Footer = () => {
         with India's Fastest Delivery to your doorstep
       </p>
     </Box>
-  );
+  )
 };
 
 export default Footer;
