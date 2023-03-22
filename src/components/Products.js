@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
+import ProductCard from "./ProductCard";
 import "./Products.css";
 
 // Definition of Data Structures used
@@ -24,10 +25,21 @@ import "./Products.css";
  * @property {number} rating - The aggregate rating of the product (integer out of five)
  * @property {string} image - Contains URL for the product image
  * @property {string} _id - Unique ID for the product
- */
-
+//  */
+//  let product={
+//   "name":"Tan Leatherette Weekender Duffle",
+//   "category":"Fashion",
+//   "cost":150,
+//   "rating":4,
+//   "image":"https://crio-directus-assets.s3.ap-south-1.amazonaws.com/ff071a1c-1099-48f9-9b03-f858ccc53832.png",
+//   "_id":"PmInA797xJhMIPti"
+//   }
 
 const Products = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [productsdata, setproductsdata] = useState([]);
+  const [loading,setloading]=useState(false);
+  const [debouncetimeout,setdebouncetimeout]=useState(null);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
   /**
@@ -67,6 +79,20 @@ const Products = () => {
    * }
    */
   const performAPICall = async () => {
+    setloading(true)
+    try {
+      let response = await axios.get(config.endpoint + `/products`);
+      setloading(false);
+      setproductsdata(response.data);
+
+      
+      //console.log(response.data);
+      return response.data;
+    } catch (error) {
+      enqueueSnackbar(error.response.data.message,{variant:"error"})
+      setloading(false);
+    }
+    
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
@@ -84,6 +110,26 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
+    // console.log("i am text from search",text);
+    // console.log(config.endpoint+`/products/search?value=${text}`);
+    try{
+      let response=await axios.get(config.endpoint+`/products/search?value=${text}`);
+      setloading(false);
+      setproductsdata(response.data);
+      return response.data;
+
+
+
+    }
+    catch(error){
+        if(error.response.status===404){
+          setproductsdata(undefined);
+
+
+        }
+
+    }
+
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
@@ -99,19 +145,54 @@ const Products = () => {
    *
    */
   const debounceSearch = (event, debounceTimeout) => {
+    const value=event.target.value;
+    if(debounceTimeout){
+      clearTimeout(debounceTimeout);
+    }
+      let newtimeout=setTimeout(()=>{
+        performSearch(value)
+      },500);
+      setdebouncetimeout(newtimeout)
+
   };
 
+useEffect(()=>{
+  performAPICall();
+},[])
 
+    
+  // }, []);
+  // useEffect(()=>{
+  //   let fetchfiltered=async ()=>{
+  //     let newdata=await performSearch(searchtext);
+  //   console.log(newdata);
+  //   setproductsdata(newdata);
 
-
-
-
+  //   }
+  //   fetchfiltered();
+    
+  // },[searchtext]
+  // );
 
   return (
     <div>
       <Header>
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
-
+        <TextField
+        className="search-desktop"
+        size="small"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Search color="primary" />
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+        onChange={(e)=>{debounceSearch(e,debouncetimeout)}}
+      />
+        
       </Header>
 
       {/* Search view for mobiles */}
@@ -128,17 +209,27 @@ const Products = () => {
         }}
         placeholder="Search for items/categories"
         name="search"
+        onChange={(e)=>{debounceSearch(e,debouncetimeout)}}
       />
-       <Grid container>
-         <Grid item className="product-grid">
-           <Box className="hero">
-             <p className="hero-heading">
-               India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
-               to your door step
-             </p>
-           </Box>
-         </Grid>
-       </Grid>
+      <Grid container>
+        <Grid item className="product-grid">
+          <Box className="hero">
+            <p className="hero-heading">
+              India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
+              to your door step
+            </p>
+          </Box>
+        </Grid>
+      </Grid>
+      <Grid container spacing={2} p={2}>
+        {loading?<CircularProgress/>: productsdata===undefined?<div align="center"><SentimentDissatisfied/><br/><h1>No Products Found</h1></div>:productsdata.map((item)=>{
+          return(
+        <Grid item xs={6} md={3} key={item._id}>
+        <ProductCard product={item}/>
+        </Grid>);
+
+      })}
+      </Grid>
       <Footer />
     </div>
   );

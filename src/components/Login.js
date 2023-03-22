@@ -129,7 +129,7 @@ const Login = () => {
       justifyContent="space-between"
       minHeight="100vh"
     >
-      <Header hasHiddenAuthButtons={true} />
+      <Header hasHiddenAuthButtons={true} children={false} />
       <Box className="content">
         <Stack spacing={2} className="form">
           <h2 className="title">Login</h2>
