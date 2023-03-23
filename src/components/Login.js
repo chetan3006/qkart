@@ -167,6 +167,6 @@ const Login = () => {
       <Footer />
     </Box>
   );
-};
+}
 
 export default Login;
