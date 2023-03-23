@@ -66,12 +66,11 @@ const Register = () => {
             variant: "success",
           });
           history.push('/login')
-          
         }
       } catch (err) {
-        console.log(err.response.status);
-        console.log(err.response.data.message);
-        console.log("error", err.message);
+        //console.log(err.response.status);
+        //console.log(err.response.data.message);
+        //console.log("error", err.message);
         if (err.response.status === 400) {
           enqueueSnackbar(err.response.data.message, {
             variant: "error",

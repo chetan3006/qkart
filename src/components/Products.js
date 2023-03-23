@@ -222,7 +222,7 @@ useEffect(()=>{
         </Grid>
       </Grid>
       <Grid container spacing={2} p={2}>
-        {loading?<CircularProgress/>: productsdata===undefined?<div align="center"><SentimentDissatisfied/><br/><h1>No Products Found</h1></div>:productsdata.map((item)=>{
+        {loading?<div><CircularProgress/><h4>loading...</h4></div>: productsdata===undefined?<div align="center"><SentimentDissatisfied/><br/><h1>No Products Found</h1></div>:productsdata.map((item)=>{
           return(
         <Grid item xs={6} md={3} key={item._id}>
         <ProductCard product={item}/>

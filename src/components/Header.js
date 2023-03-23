@@ -39,7 +39,7 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
       Back to explore
     </Button></Link></Stack>);
   } else {
-    console.log(window.localStorage);
+   // console.log(window.localStorage);
     button = (
     <Stack direction="row" spacing={2}>
       <Avatar src="avatar.png" alt={localStorage.getItem("username")}/>

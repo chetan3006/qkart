@@ -20,7 +20,8 @@ const Login = () => {
     const login = { ...value };
     login[e.target.id] = e.target.value;
     setvalue(login);
-    console.log(login);
+   //clear
+   // console.log(login);
   };
   // TODO: CRIO_TASK_MODULE_LOGIN - Fetch the API response
   /**

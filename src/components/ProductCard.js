@@ -17,8 +17,9 @@ const ProductCard = ({ product, handleAddToCart }) => {
   return (
     <Card className="card">
       <CardMedia
+        component="img"
         sx={{ height: 140 }}
-        image={product.image}
+        src={product.image}
         title={product.name}
       />
       <CardContent>
