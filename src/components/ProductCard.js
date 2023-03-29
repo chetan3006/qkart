@@ -28,12 +28,12 @@ const ProductCard = ({ product, handleAddToCart }) => {
         </Typography>
         <Typography variant="h6" color="text.secondary">
           ${product.cost}<br/>
-          ₹{product.cost*82.65}
+          {/* ₹{product.cost*82.65} */}
         </Typography>
         <Rating name="read-only" value={product.rating} readOnly />
       </CardContent>
       <CardActions>
-        <Button className="button" id="" variant="contained" fullWidth={true}>
+        <Button className="button" id="" variant="contained" fullWidth={true} onClick={handleAddToCart}>
           <AddShoppingCartOutlined />
           ADD TO CART
         </Button>
