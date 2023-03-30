@@ -4,7 +4,7 @@ import {
   ShoppingCart,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
-import { Button, IconButton, Stack } from "@mui/material";
+import { Button, IconButton, Stack,Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
@@ -80,6 +80,23 @@ export const getTotalCartValue = (items = []) => {
   return totalvalue;
 
 };
+// TODO: CRIO_TASK_MODULE_CHECKOUT - Implement function to return total cart quantity
+/**
+ * Return the sum of quantities of all products added to the cart
+ *
+ * @param { Array.<CartItem> } items
+ *    Array of objects with complete data on products in cart
+ *
+ * @returns { Number }
+ *    Total quantity of products added to the cart
+ *
+ */
+ export const getTotalItems = (items = []) => {
+  let totalitems=items.map((i)=>(i.qty)).reduce((resval,currval)=>resval+currval,0);
+  return totalitems;
+};
+
+
 
 
 /**
@@ -94,17 +111,23 @@ export const getTotalCartValue = (items = []) => {
  * @param {Function} handleDelete
  *    Handler function which reduces the quantity of a product in cart by 1
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
-
 const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  Ro
 }) => {
   return (
+   <Stack direction="row" alignItems="center">
+    {Ro ? <div><Box padding="0.5rem" data-testid="item-qty">
+    Qty:{value}
+  </Box></div>:
     <Stack direction="row" alignItems="center">
-      <IconButton size="small" color="primary" onClick={handleDelete}>
+     <IconButton size="small" color="primary" onClick={handleDelete}>
         <RemoveOutlined />
       </IconButton>
       <Box padding="0.5rem" data-testid="item-qty">
@@ -113,6 +136,7 @@ const ItemQuantity = ({
       <IconButton size="small" color="primary" onClick={handleAdd}>
         <AddOutlined />
       </IconButton>
+    </Stack>}
     </Stack>
   );
 };
@@ -135,8 +159,10 @@ const Cart = ({
   products=[],
   items = [],
   handleQuantity,
+  isReadOnly
 }) => {
-  console.log(items)
+  //console.log(items)
+ //clear console.log(getTotalItems(items));
   const handleplus=(productid,quantity)=>{
   //   console.log(localStorage.getItem("token"));
   //   console.log(products);
@@ -157,7 +183,7 @@ const Cart = ({
     return (
       <Box className="cart empty">
         <ShoppingCartOutlined className="empty-cart-icon" />
-        <Box color="#E9F5E1" textAlign="center">
+        <Box color="#aaa" textAlign="center">
           Cart is empty. Add more items to the cart to checkout.
         </Box>
       </Box>
@@ -194,13 +220,18 @@ const Cart = ({
                         justifyContent="space-between"
                         alignItems="center"
                     >
-                    <ItemQuantity
+                    {isReadOnly?<ItemQuantity
+                    // Add required props by checking implementation
+                    value={i.qty}
+                    Ro
+
+                    />:<ItemQuantity
                     // Add required props by checking implementation
                     value={i.qty}
                     handleAdd={()=>handleplus(i._id,i.qty)}
                     handleDelete={()=>{handleminus(i._id,i.qty)}}
 
-                    />
+                    />}
                     <Box padding="0.5rem" fontWeight="700">
                         ${/* Add product cost */i.cost}
                     </Box>
@@ -229,8 +260,9 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
+        
 
-        <Box display="flex" justifyContent="flex-end" className="cart-footer">
+        {isReadOnly?null:<Box display="flex" justifyContent="flex-end" className="cart-footer">
           <Link to="/checkout"><Button
             color="primary"
             variant="contained"
@@ -239,8 +271,32 @@ const Cart = ({
           >
             Checkout
           </Button></Link>
-        </Box>
+        </Box>}
+        
       </Box>
+      {/* <Box className="cart" display="flex" align-items="flex-start">
+  
+      <Box><h3>Order details</h3></Box>
+      <Box><h5>Products</h5>{getTotalItems(items)}</Box>
+      <Box><h5>Subtotal</h5>{getTotalCartValue(items)}</Box>
+      <Box><h5>Shipping Charges</h5></Box>
+      <Box><h4>Total</h4>{getTotalCartValue(items)}</Box>
+      </Box> */}
+      <Box
+      className="cart"
+      >
+        {isReadOnly?<div><Box align="center" padding="1rem"><h2>Order details</h2></Box>
+        <Box display="flex" flexDirection="column" justifyContent="space-between" padding="1rem" >
+          <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between"><h5>Products</h5><div>{getTotalItems(items)}</div></Box>
+          <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between"><h5>Subtotal</h5>{getTotalCartValue(items)}</Box>
+          <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between"><h5>Shipping Charges</h5><div>$0</div></Box>
+          <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between"><h3>Total</h3><h3>{getTotalCartValue(items)}</h3></Box>
+        </Box></div>:null}
+
+      </Box>
+      {/* {isReadOnly?<Box display="flex" sx={{backgroundColor:"red"}} >hello</Box>:<h1>hello</h1>
+
+        } */}
     </>
   );
 };
